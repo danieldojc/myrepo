@@ -1,5 +1,4 @@
 # myrepo
-testing my setup
 My idea for the portfolio is to compare Lady Gaga’s albums with each other to see which ones were the most commercially successful and juxtapose this with the musical styles and genre of each album. This will be very interesting because Lady Gaga has a very diverse discography, ranging from mainstream pop to country to jazz. The albums I would like to compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica.
 
 The tracks for my corpus are representative for the groups I want to compare, because a lot of the listening to Lady Gaga’s music happens on Spotify. This means all of her music is released on this platform, so it will be easy to compare all her music. I will only use the official albums, which can be a studio album or a live album.
