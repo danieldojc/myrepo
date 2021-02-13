@@ -6,8 +6,34 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE, echo = FALSE)
 ```
+
+```{r}
+library(tidyverse)
+library(spotifyr)
+
+The_Fame <- get_playlist_audio_features("", "0tP9ws8v5IahnYpFWWZWjG")
+Born_This_Way <- get_playlist_audio_features("", "7z51IAcHQtFa6DIsIQOGZE")
+Artpop <- get_playlist_audio_features("", "0Cu6DccnrVil7ZDnE1bhwP")
+Cheek_To_Cheek <- get_playlist_audio_features("", "7JEg2pZCBZktul0xqjDLiQ")
+Joanne <- get_playlist_audio_features("", "0F9TvACmRg9jnWdTpHlPkM")
+A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("", "4jbR1SeCh5XpitDHxLTlB3")
+Chromatica <- get_playlist_audio_features("", "0A3GuU5dqjCO4viWOZbfBZ")
+
+Lady_Gaga_Discography <- bind_rows(
+    The_Fame %>% mutate(category = "The_Fame"),
+    Born_This_Way %>% mutate(category = "Born_This_Way"),
+    Artpop %>% mutate(category = "Artpop"),
+    Cheek_To_Cheek %>% mutate(category = "Cheek To Cheek"),
+    A_Star_Is_Born_Soundtrack %>% mutate(category = "A_Star_Is_Born_Soundtrack"),
+    Chromatica %>% mutate(category = "Chromatica")
+  )
+
+Lady_Gaga_Discography %>% ggplot(aes(x = valence, y = energy)) + geom_jitter() + geom_smooth()
+
+```
+
 
 ## R Markdown
 
