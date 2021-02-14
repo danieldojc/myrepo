@@ -15,6 +15,8 @@ The tracks for my corpus are representative for the groups I want to compare, be
 
 To give a general idea of my corpus I will now identify one track of each album that I find represents the style of the album best. In chronological order these are Poker Face, Born This Way, Applause, Cheek To Cheek featuring Tony Bennett, Million Reasons, Shallow featuring Bradley Cooper and Stupid Love. These are typical because they were not only one of the most successful tracks on the albums, which means they represent that era, but they also represent the genre that Lady Gaga explores. By using these songs as an example, I will be better able to research the differences between all the albums.
 
+The following graphs shows the energy and valence of Lady Gaga's seven different albums. By getting this overview of both the albums separately and together, I am able to have a general idea of the energy levels in each album.
+
 ```{r}
 library(tidyverse)
 library(spotifyr)
@@ -38,8 +40,10 @@ Lady_Gaga_Discography <- bind_rows(
 
 Lady_Gaga_Discography %>% ggplot(aes(x = valence, y = energy)) + geom_jitter() + geom_smooth()
 
+
+Lady_Gaga_Discography %>%
+  ggplot(aes(x = energy)) +
+  geom_histogram(binwidth = 0.1) +
+  facet_wrap(~category)
+
 ```
-
-
-## R Markdown
-
