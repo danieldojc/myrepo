@@ -1,25 +1,20 @@
 ---
-title: "Lady Gaga"
+title: "Lady Gaga's Discography"
 author: "Daniël"
 date: "2/13/2021"
-output: html_document
+output:
+    flexdashboard::flex_dashboard:
+    storyboard: true
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(message = FALSE, echo = FALSE)
 ```
 
-My idea for the portfolio is to compare Lady Gaga’s albums with each other to see which ones were the most commercially successful and juxtapose this with the musical styles and genre of each album. This will be very interesting because Lady Gaga has a very diverse discography, ranging from mainstream pop to country to jazz. The albums I would like to compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica.
-
-The tracks for my corpus are representative for the groups I want to compare, because a lot of the listening to Lady Gaga’s music happens on Spotify. This means all of her music is released on this platform, so it will be easy to compare all her music. I will only use the official albums, which can be a studio album or a live album.
-
-To give a general idea of my corpus I will now identify one track of each album that I find represents the style of the album best. In chronological order these are Poker Face, Born This Way, Applause, Cheek To Cheek featuring Tony Bennett, Million Reasons, Shallow featuring Bradley Cooper and Stupid Love. These are typical because they were not only one of the most successful tracks on the albums, which means they represent that era, but they also represent the genre that Lady Gaga explores. By using these songs as an example, I will be better able to research the differences between all the albums.
-
-The following graphs shows the energy and valence of Lady Gaga's seven different albums. By getting this overview of both the albums separately and together, I am able to have a general idea of the energy levels in each album.
-
 ```{r}
 library(tidyverse)
 library(spotifyr)
+library(plotly)
 
 The_Fame <- get_playlist_audio_features("", "0tP9ws8v5IahnYpFWWZWjG")
 Born_This_Way <- get_playlist_audio_features("", "7z51IAcHQtFa6DIsIQOGZE")
@@ -29,6 +24,27 @@ Joanne <- get_playlist_audio_features("", "0F9TvACmRg9jnWdTpHlPkM")
 A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("", "4jbR1SeCh5XpitDHxLTlB3")
 Chromatica <- get_playlist_audio_features("", "0A3GuU5dqjCO4viWOZbfBZ")
 
+
+```
+
+
+# Introduction
+My idea for the portfolio is to compare Lady Gaga’s albums with each other to see which ones were the most commercially successful and juxtapose this with the musical styles and genre of each album. This will be very interesting because Lady Gaga has a very diverse discography, ranging from mainstream pop to country to jazz. The albums I would like to compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica.
+
+The tracks for my corpus are representative for the groups I want to compare, because a lot of the listening to Lady Gaga’s music happens on Spotify. This means all of her music is released on this platform, so it will be easy to compare all her music. I will only use the official albums, which can be a studio album or a live album.
+
+To give a general idea of my corpus I will now identify one track of each album that I find represents the style of the album best. In chronological order these are Poker Face, Born This Way, Applause, Cheek To Cheek featuring Tony Bennett, Million Reasons, Shallow featuring Bradley Cooper and Stupid Love. These are typical because they were not only one of the most successful tracks on the albums, which means they represent that era, but they also represent the genre that Lady Gaga explores. By using these songs as an example, I will be better able to research the differences between all the albums.
+
+The following graphs shows the energy and valence of Lady Gaga's seven different albums. By getting this overview of both the albums separately and together, I am able to have a general idea of the energy levels in each album.
+
+# Comparing all Lady Gaga's albums with charts
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
 Lady_Gaga_Discography <- bind_rows(
     The_Fame %>% mutate(category = "The_Fame"),
     Born_This_Way %>% mutate(category = "Born_This_Way"),
@@ -38,12 +54,28 @@ Lady_Gaga_Discography <- bind_rows(
     Chromatica %>% mutate(category = "Chromatica")
   )
 
-Lady_Gaga_Discography %>% ggplot(aes(x = valence, y = energy)) + geom_jitter() + geom_smooth()
+Lady_Gaga_Discography %>% ggplot(aes(x = valence, y = energy, color = "red")) + geom_jitter() + geom_smooth()
+
+ggplotly()
+
+```
 
 
+
+Column {data-width=500}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
 Lady_Gaga_Discography %>%
-  ggplot(aes(x = energy)) +
+  ggplot(aes(x = energy, color = "red")) +
   geom_histogram(binwidth = 0.1) +
   facet_wrap(~category)
 
+ggplotly()
 ```
+
+
+# Comparison
+This is where I compare the records with a conclusion.
