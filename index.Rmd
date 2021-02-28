@@ -1,21 +1,21 @@
 ---
-title: "Lady Gaga's Discography"
-author: "Daniël"
-date: "2/13/2021"
+title: "Lady Gaga: the relationship between music and commerce"
+author: "Daniël Dojčinović"
 output:
     flexdashboard::flex_dashboard:
-    storyboard: true
+      storyboard: true
+      theme: yeti
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(message = FALSE, echo = FALSE)
-```
 
-```{r}
+```{r setup, echo = FALSE, include=FALSE}
 library(tidyverse)
 library(spotifyr)
 library(plotly)
 library(dplyr)
+library(compmus)
+library(flexdashboard)
+library(ggrepel)
 
 The_Fame <- get_playlist_audio_features("", "0tP9ws8v5IahnYpFWWZWjG")
 Born_This_Way <- get_playlist_audio_features("", "7z51IAcHQtFa6DIsIQOGZE")
@@ -24,23 +24,29 @@ Cheek_To_Cheek <- get_playlist_audio_features("", "7JEg2pZCBZktul0xqjDLiQ")
 Joanne <- get_playlist_audio_features("", "0F9TvACmRg9jnWdTpHlPkM")
 A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("", "4jbR1SeCh5XpitDHxLTlB3")
 Chromatica <- get_playlist_audio_features("", "0A3GuU5dqjCO4viWOZbfBZ")
-
-
 ```
 
 
-# Lady Gaga: from The Fame to Chromatica
+
+### Lady Gaga: from The Fame to Chromatica
 Lady Gaga's first album, The Fame, was released in August 2008 and immediately shot her to stardom. From that moment Gaga was on of the biggest artists in the world. Lady Gaga is one of the biggest pop artists in the world and is known for her musical range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much
 
 This aim of this website is to display my research on Lady Gaga's full discography. The albums I will compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica. To study the musical differences, I will first rank the albums by commercial success by looking at the Spotify streams each album has. I will then look at the musical differences of each album and conclude if there is a relationship between the the commercial success and musical elements, such as energy and danceability.
 
 
-# How do the albums score on the energy level?
+### Ranking the albums by commercial success
+Lady Gaga's seven albums have a varying degree of success measured by the amount of Spotify streams per album. I will rank each album below in the order of most average streams per song. It is important to take the average as all albums have a different amount of songs, so to compare them evenly, I calculated the average amount of streams each song has received. 
 
-Column {data-width=500}
------------------------------------------------------------------------
+The Fame (2008): 1.455.977.263 streams (15 songs) - average 97.065.151 streams per song
+Born This Way (2011): 938.928.266 streams (17 songs) - average 55.231.074 streams per song
+Artpop (2013): 627.806.934 streams (14 songs) - average 44.843.352 streams per song
+Cheek To Cheek (2014): 116.065.257 (17 songs) - average 6.827.368 streams per song
+Joanne (2016): 1.182.601.651 (14 songs) - average 84.471.547 streams per song
+A Star Is Born Soundtrack (2018): 3.253.821.459 streams (19 songs) - average 171.253.761 streams per song
+Chromatica (2020): 1.415.855.164 streams (16 songs) - average 88.474.260 streams per song
 
-### Chart A
+
+### How do the albums score on the energy level?
 
 ```{r}
 Lady_Gaga_Discography <- dplyr::bind_rows(
@@ -59,11 +65,11 @@ ggplotly()
 
 ```
 
+***
+Commentary about Frame 2.
 
-Column {data-width=500}
------------------------------------------------------------------------
 
-### Chart B
+### How do the albums score on the energy level? part 2
 
 ```{r}
 Lady_Gaga_Discography %>%
@@ -74,8 +80,11 @@ Lady_Gaga_Discography %>%
 ggplotly()
 ```
 
+***
+Commentary about Frame 2.
 
-# Comparing the albums: does energy influence commercial success?
+
+### Comparing the albums: does energy influence commercial success?
 Chart B shows that there is a quite a big difference in energy between all the albums. Cheek To Cheek scores quite a bit lower than Chromatica for example, which is logical because the it is a jazz record consisting of more slower, chiller songs. Chromatica, on the contrary, has only upbeat songs and scores very high on the energy ranking. This rule seems to apply for all her pop albums. Artpop, The Fame, and Born This Way score much higher than Cheek To Cheek (jazz) and A Star Is Born. Joanne is kind of a mix, because it has both low and higher energy scores. The album consists of both upbeat and slower songs, as it is a mix of pop, folk/country and rock elements.
 
-So altogether I am able to conclude that the more commercially successful albums are the ones who have more energetic songs. However, A Star Is Born is an outcast in this case, because it was very successful  even though it score higher in the middle of the energy ranking.
+So, altogether I am able to conclude that the more commercially successful albums are the ones who have more energetic songs. However, A Star Is Born is an outcast in this case, because it was very successful  even though it score higher in the middle of the energy ranking.
