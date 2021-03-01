@@ -26,6 +26,47 @@ A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("", "4jbR1SeCh5XpitDHxL
 Chromatica <- get_playlist_audio_features("", "0A3GuU5dqjCO4viWOZbfBZ")
 ```
 
+### Using **cepstrograms** to dive into the **most streamed song** of each album.
+``` {r}
+Lady_Gaga_Discography <-
+  get_tidy_audio_analysis("6QfS2wq5sSC1xAJCQsTSlj") %>%
+  compmus_align(beats, segments) %>%                     
+  select(beats) %>%                                      
+  unnest(beats) %>%                                     
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"             
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"             
+      )
+  )
+
+Lady_Gaga_Discography %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  scale_fill_viridis_c() +                              
+  theme_classic()
+```
+
+
+***
+This cepstrogram shows Lady Gaga's most streamed song *Shallow* (featuring Bradley Cooper) from the album *A Star is Born* soundtrack.
 
 
 ### Lady Gaga: from her **controversial** *The Fame to her **newest release** Chromatica
@@ -105,47 +146,6 @@ ggplotly()
 
 ***
 This histogram shows that there is a quite a big difference in energy between all the albums. Cheek To Cheek scores quite a bit lower than Chromatica for example, which is logical because the it is a jazz record consisting of more slower, chiller songs. Chromatica, on the contrary, has only upbeat songs and scores very high on the energy ranking. This rule seems to apply for all her pop albums. Artpop, The Fame, and Born This Way score much higher than Cheek To Cheek (jazz) and A Star Is Born. Joanne is kind of a mix, because it has both low and higher energy scores. The album consists of both upbeat and slower songs, as it is a mix of pop, folk/country and rock elements.
-
-### Using **cepstrograms** to dive into the **most streamed song** of each album.
-``` {r}
-Lady_Gaga_Discography <-
-  get_tidy_audio_analysis("6QfS2wq5sSC1xAJCQsTSlj") %>%
-  compmus_align(beats, segments) %>%                     
-  select(beats) %>%                                      
-  unnest(beats) %>%                                     
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"             
-      )
-  ) %>%
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"             
-      )
-  )
-
-Lady_Gaga_Discography %>%
-  compmus_gather_timbre() %>%
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = basis,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  scale_fill_viridis_c() +                              
-  theme_classic()
-```
-
-***
-This cepstrogram shows Lady Gaga's most streamed song *Shallow* (featuring Bradley Cooper) from the album *A Star is Born* soundtrack.
 
 
 ### Is there a clear and distinctive **relationship** between **music and commerce** in Gaga's music?
