@@ -37,47 +37,6 @@ Lady_Gaga_Discography <- dplyr::bind_rows(
 ```
 
 
-### Lady Gaga: from her **controversial** *The Fame to her **newest release** Chromatica
-Lady Gaga's first album, The Fame, was released in August 2008 and immediately shot her to stardom. From that moment Gaga was on of the biggest artists in the world. Lady Gaga is one of the biggest pop artists in the world and is known for her musical range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much
-
-This aim of this website is to display my research on Lady Gaga's full discography. The albums I will compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica. To study the musical differences, I will first rank the albums by commercial success by looking at the Spotify streams each album has. I will then look at the musical differences of each album and conclude if there is a relationship between the the commercial success and musical elements, such as energy and valence.
-
-
-### **Ranking** all of Gaga's albums by the **amount of Spotify streams**
-Before studying the musical elements of Lady Gaga's music to compare it to the commercial success, I have to rank all albums based on their success. I first calculated the total amount of streams of each album on Spotify on February 28, 2021. Then I divided this by the number of songs on the album to compare all songs equally. My ranking will therefore be based on the average streams per song on each album.
-
-
-1. **A Star Is Born Soundtrack (2018)**
-- 3.253.821.459 streams (19 songs)
-- Average of *171.253.761* streams per song
-
-2. **The Fame (2008)**
-- 1.455.977.263 streams (15 songs)
-- Average of *97.065.151* streams per song
-
-3. **Chromatica (2020)**:
-- 1.415.855.164 streams (16 songs)
-- Average of *88.474.260* streams per song
-
-4. **Joanne (2016)**
-- 1.182.601.651 (14 songs)
-- Average of *84.471.547* streams per song
-
-5. **Born This Way (2011)**
-- 938.928.266 streams (17 songs)
-- Average of *55.231.074* streams per song
-
-6. **Artpop (2013)**
-- 627.806.934 streams (14 songs)
-- Average of *44.843.352* streams per song
-
-7. **Cheek To Cheek (2014)**
-- 116.065.257 streams (17 songs)
-- Average of *6.827.368* streams per song
-
-The only issue with this method of calculation is that all albums were released at different points in time, so some albums have naturally had more time to be streamed. I have not found a reliable source that provided me with data that can be fully equally compared.
-
-
 ### Comparing all albums separately by their **energy levels**.
 
 ```{r message=FALSE, warning=FALSE}
@@ -1067,6 +1026,46 @@ Lady_Gaga_Discography %>%
 
 ***
 This cepstrogram shows Lady Gaga's song *Brown Eyes* from the album *The Fame*.
+
+### Lady Gaga: from her **controversial** *The Fame to her **newest release** Chromatica
+Lady Gaga's first album, The Fame, was released in August 2008 and immediately shot her to stardom. From that moment Gaga was on of the biggest artists in the world. Lady Gaga is one of the biggest pop artists in the world and is known for her musical range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much
+
+This aim of this website is to display my research on Lady Gaga's full discography. The albums I will compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica. To study the musical differences, I will first rank the albums by commercial success by looking at the Spotify streams each album has. I will then look at the musical differences of each album and conclude if there is a relationship between the the commercial success and musical elements, such as energy and valence.
+
+
+### **Ranking** all of Gaga's albums by the **amount of Spotify streams**
+Before studying the musical elements of Lady Gaga's music to compare it to the commercial success, I have to rank all albums based on their success. I first calculated the total amount of streams of each album on Spotify on February 28, 2021. Then I divided this by the number of songs on the album to compare all songs equally. My ranking will therefore be based on the average streams per song on each album.
+
+
+1. **A Star Is Born Soundtrack (2018)**
+- 3.253.821.459 streams (19 songs)
+- Average of *171.253.761* streams per song
+
+2. **The Fame (2008)**
+- 1.455.977.263 streams (15 songs)
+- Average of *97.065.151* streams per song
+
+3. **Chromatica (2020)**:
+- 1.415.855.164 streams (16 songs)
+- Average of *88.474.260* streams per song
+
+4. **Joanne (2016)**
+- 1.182.601.651 (14 songs)
+- Average of *84.471.547* streams per song
+
+5. **Born This Way (2011)**
+- 938.928.266 streams (17 songs)
+- Average of *55.231.074* streams per song
+
+6. **Artpop (2013)**
+- 627.806.934 streams (14 songs)
+- Average of *44.843.352* streams per song
+
+7. **Cheek To Cheek (2014)**
+- 116.065.257 streams (17 songs)
+- Average of *6.827.368* streams per song
+
+The only issue with this method of calculation is that all albums were released at different points in time, so some albums have naturally had more time to be streamed. I have not found a reliable source that provided me with data that can be fully equally compared.
 
 
 ### Is there a clear and distinctive **relationship** between **music and commerce** in Gaga's music?
