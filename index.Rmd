@@ -36,6 +36,128 @@ Lady_Gaga_Discography <- dplyr::bind_rows(
     )
 ```
 
+### Studying and comparing all songs with the **highest energy level** with a **tempogram**
+
+#### **Disco Heaven** (energy: 0.946)
+``` {r}
+Disco_Heaven <- get_tidy_audio_analysis("1uvJevFvRwq3AO1qzmXxhJ")
+
+Disco_Heaven %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+
+```
+
+****
+This tempogram of Disco Heaven shows one very clear line around 225 BPM. There is also a more vague line around 510 BPM, but it is not a clear as the first one.
+
+#### **ScheiBe** (energy: 0.970)
+``` {r}
+Disco_Heaven <- get_tidy_audio_analysis("7DXGKFjM7GNkJd32oXstGY")
+
+Disco_Heaven %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+Theere is one clear line around 225 BPM and one that is clear but not as consistent around 550 BPM.
+
+#### **Mary Jane Holland** (energy: 0.967)
+``` {r}
+Mary_Jane_Holland <- get_tidy_audio_analysis("0gMpKudmJ2ljDVAdIe9DmR")
+
+Mary_Jane_Holland %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+This tempogram is not very clear. There is a line around 200 BPM, but it is interrupted quite often. The biggest interruption is around 150 seconds, which could be explained by the syncopation that is incorporated into the the rhythmic pattern of the beat. There are even some parts when the beat dissapears completely.
+
+
+#### **It Don’t Mean A Thing (If It Ain’t Got That Swing)** (energy: 0.778)
+``` {r}
+It_Dont_Mean_A_Thing <- get_tidy_audio_analysis("13ZUcnlULdzCr9w5hnzja5")
+
+It_Dont_Mean_A_Thing %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+This tempogram does not have one distinctive line. There is something around 210 BPM, but it is not very clear. It is understandable that the line is tempo to distinguish in this song, because this jazz track does not have a very clear beat pattern.
+
+
+#### **A-YO** (energy: 0.889)
+``` {r}
+A_YO <- get_tidy_audio_analysis("6Az2Ll2CPnWYQ2BgiHf4Di")
+
+A_YO %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+A-YO has the clearest tempogram with its distinguishable line around 300BPM.
+
+
+#### **Black Eyes** (energy: 0.937)
+``` {r}
+Black_Eyes <- get_tidy_audio_analysis("7qrJKTyxjWDBpVofIYydTk")
+
+Black_Eyes %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+*Black Eyes* shows a line around 300, but it is not very clear. It is for example interrupted around 75 seconds when a guitar solo appears in the song.
+
+
+#### **911** (energy: 0.789)
+``` {r}
+nine_one_one <- get_tidy_audio_analysis("6qI0MU175Dk2DeoUjlrOpy")
+
+nine_one_one %>%
+  tempogram(window_size = 8, hop_size = 1, cyclic = FALSE) %>%
+  ggplot(aes(x = time, y = bpm, fill = power)) +
+  geom_raster() +
+  scale_fill_viridis_c(guide = "none") +
+  labs(x = "Time (s)", y = "Tempo (BPM)") +
+  theme_classic()
+```
+
+****
+This *911* tempogram has two clear lines around 220 BPM and 440 BPM. This is logical as the latter is the double of the first one.
+
+Altogether, it is clear that most of the highly energetic songs have clear lines, with one or two exceptions. Most of them have their tempo between 200 and 300 BPM, which is a up-beat tempo for a track. So, it makes sense that these were the songs with the highest energy on each album.
+
+
 
 ### Comparing all albums separately by their **energy levels**.
 
@@ -985,47 +1107,6 @@ Chromatica_II %>%
 *Chromatica II* has three clear parts. The first part is the intro, the second part shows no strong presence of chords and the third part shows a strong presence of Fmin, Ebmaj, Dmin and C#min. This track is instrumental and orchestral so it is different from all of the other songs.
 
 
-### Using **cepstrograms** to dive into the **most streamed song** of each album.
-``` {r}
-Lady_Gaga_Discography <-
-  get_tidy_audio_analysis("6a3tkCh4IRkloHPVYxwtZ0") %>%
-  compmus_align(beats, segments) %>%                     
-  select(beats) %>%                                      
-  unnest(beats) %>%                                     
-  mutate(
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "rms", norm = "euclidean"             
-      )
-  ) %>%
-  mutate(
-    timbre =
-      map(segments,
-        compmus_summarise, timbre,
-        method = "rms", norm = "euclidean"             
-      )
-  )
-
-Lady_Gaga_Discography %>%
-  compmus_gather_timbre() %>%
-  ggplot(
-    aes(
-      x = start + duration / 2,
-      width = duration,
-      y = basis,
-      fill = value
-    )
-  ) +
-  geom_tile() +
-  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
-  scale_fill_viridis_c() +                              
-  theme_classic()
-```
-
-
-***
-This cepstrogram shows Lady Gaga's song *Brown Eyes* from the album *The Fame*.
 
 ### Lady Gaga: from her **controversial** *The Fame to her **newest release** Chromatica
 Lady Gaga's first album, The Fame, was released in August 2008 and immediately shot her to stardom. From that moment Gaga was on of the biggest artists in the world. Lady Gaga is one of the biggest pop artists in the world and is known for her musical range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much
@@ -1066,6 +1147,7 @@ Before studying the musical elements of Lady Gaga's music to compare it to the c
 - Average of *6.827.368* streams per song
 
 The only issue with this method of calculation is that all albums were released at different points in time, so some albums have naturally had more time to be streamed. I have not found a reliable source that provided me with data that can be fully equally compared.
+
 
 
 ### Is there a clear and distinctive **relationship** between **music and commerce** in Gaga's music?
