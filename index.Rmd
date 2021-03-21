@@ -97,13 +97,13 @@ The_Fame <-
 The_Fame_dist <- dist(The_Fame, method = "euclidean")
 
 The_Fame_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 ****
-The Fame
+The Fame, using the "complete" method.
 
 
 #### Born This Way
@@ -159,14 +159,14 @@ Born_This_Way <-
 Born_This_Way_dist <- dist(Born_This_Way, method = "euclidean")
 
 Born_This_Way_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 
 ****
-Born This Way
+Born This Way, using the "complete" method.
 
 
 #### Artpop
@@ -222,14 +222,14 @@ Artpop <-
 Artpop_dist <- dist(Artpop, method = "euclidean")
 
 Artpop_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 
 ****
-Artpop
+Artpop, using the "complete" method.
 
 
 #### Cheek To Cheek
@@ -285,14 +285,14 @@ Cheek_To_Cheek <-
 Cheek_To_Cheek_dist <- dist(Cheek_To_Cheek, method = "euclidean")
 
 Cheek_To_Cheek_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 
 ****
-Cheek To Cheek
+Cheek To Cheek, using the "complete" method.
 
 
 #### Joanne
@@ -348,14 +348,14 @@ Joanne <-
 Joanne_dist <- dist(Joanne, method = "euclidean")
 
 Joanne_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 
 ****
-Joanne
+Joanne, using the "complete" method.
 
 
 #### A Star Is Born
@@ -411,13 +411,13 @@ A_Star_Is_Born_Soundtrack <-
 A_Star_Is_Born_Soundtrack_dist <- dist(A_Star_Is_Born_Soundtrack, method = "euclidean")
 
 A_Star_Is_Born_Soundtrack_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 ****
-A Star Is Born
+A Star Is Born, using the "complete" method.
 
 
 #### Chromatica
@@ -473,14 +473,14 @@ Chromatica <-
 Chromatica_dist <- dist(Chromatica, method = "euclidean")
 
 Chromatica_dist %>% 
-  hclust(method = "single") %>% # Try single, average, and complete.
+  hclust(method = "complete") %>% # Try single, average, and complete.
   dendro_data() %>%
   ggdendrogram()
 ```
 
 
 ****
-Chromatica
+Chromatica, using the "complete" method.
 
 
 ### Studying and comparing all songs with the **highest energy level** with a **tempogram**
