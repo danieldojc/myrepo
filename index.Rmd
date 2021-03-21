@@ -17,6 +17,12 @@ library(compmus)
 library(flexdashboard)
 library(ggrepel)
 library(ggplot2)
+library(tidymodels)
+library(ggdendro)
+library(protoclust)
+library(heatmaply)
+library(cluster)
+
 
 The_Fame <- get_playlist_audio_features("", "0tP9ws8v5IahnYpFWWZWjG")
 Born_This_Way <- get_playlist_audio_features("", "7z51IAcHQtFa6DIsIQOGZE")
@@ -35,6 +41,447 @@ Lady_Gaga_Discography <- dplyr::bind_rows(
         Chromatica %>% mutate(category = "Chromatica")
     )
 ```
+
+### Zooming in on **all songs** on each album with **dendograms**
+
+#### The Fame
+``` {r}
+The_Fame <-
+  get_playlist_audio_features("bnfcollection", "0tP9ws8v5IahnYpFWWZWjG") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+The_Fame <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = The_Fame
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(The_Fame %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+The_Fame_dist <- dist(The_Fame, method = "euclidean")
+
+The_Fame_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+****
+The Fame
+
+
+#### Born This Way
+``` {r}
+Born_This_Way <-
+  get_playlist_audio_features("bnfcollection", "7z51IAcHQtFa6DIsIQOGZE") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+Born_This_Way <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Born_This_Way
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(Born_This_Way %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+Born_This_Way_dist <- dist(Born_This_Way, method = "euclidean")
+
+Born_This_Way_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+
+****
+Born This Way
+
+
+#### Artpop
+``` {r}
+Artpop <-
+  get_playlist_audio_features("bnfcollection", "0Cu6DccnrVil7ZDnE1bhwP") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+Artpop <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Artpop
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(Artpop %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+Artpop_dist <- dist(Artpop, method = "euclidean")
+
+Artpop_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+
+****
+Artpop
+
+
+#### Cheek To Cheek
+``` {r}
+Cheek_To_Cheek <-
+  get_playlist_audio_features("bnfcollection", "7JEg2pZCBZktul0xqjDLiQ") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+Cheek_To_Cheek <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Cheek_To_Cheek
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(Cheek_To_Cheek %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+Cheek_To_Cheek_dist <- dist(Cheek_To_Cheek, method = "euclidean")
+
+Cheek_To_Cheek_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+
+****
+Cheek To Cheek
+
+
+#### Joanne
+``` {r}
+Joanne <-
+  get_playlist_audio_features("bnfcollection", "0F9TvACmRg9jnWdTpHlPkM") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+Joanne <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Joanne
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(Joanne %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+Joanne_dist <- dist(Joanne, method = "euclidean")
+
+Joanne_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+
+****
+Joanne
+
+
+#### A Star Is Born
+``` {r}
+A_Star_Is_Born_Soundtrack <-
+  get_playlist_audio_features("bnfcollection", "4jbR1SeCh5XpitDHxLTlB3") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+A_Star_Is_Born_Soundtrack <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = A_Star_Is_Born_Soundtrack
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(A_Star_Is_Born_Soundtrack %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+A_Star_Is_Born_Soundtrack_dist <- dist(A_Star_Is_Born_Soundtrack, method = "euclidean")
+
+A_Star_Is_Born_Soundtrack_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+****
+A Star Is Born
+
+
+#### Chromatica
+``` {r}
+Chromatica <-
+  get_playlist_audio_features("bnfcollection", "0A3GuU5dqjCO4viWOZbfBZ") %>%
+  add_audio_analysis() %>%
+  mutate(
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean"
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+Chromatica <-
+  recipe(
+    track.name ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Chromatica
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors()) %>% 
+  # step_range(all_predictors()) %>% 
+  prep(Chromatica %>% mutate(track.name = str_trunc(track.name, 20))) %>%
+  juice() %>%
+  column_to_rownames("track.name")
+
+Chromatica_dist <- dist(Chromatica, method = "euclidean")
+
+Chromatica_dist %>% 
+  hclust(method = "single") %>% # Try single, average, and complete.
+  dendro_data() %>%
+  ggdendrogram()
+```
+
+
+****
+Chromatica
+
 
 ### Studying and comparing all songs with the **highest energy level** with a **tempogram**
 
@@ -174,97 +621,6 @@ ggplotly()
 This histogram shows that there is a quite a big difference in energy between all the albums. Cheek To Cheek scores quite a bit lower than Chromatica for example, which is logical because the it is a jazz record consisting of more slower, chiller songs. Chromatica, on the contrary, has only upbeat songs and scores very high on the energy ranking. This rule seems to apply for all her pop albums. Artpop, The Fame, and Born This Way score much higher than Cheek To Cheek (jazz) and A Star Is Born. Joanne is kind of a mix, because it has both low and higher energy scores. The album consists of both upbeat and slower songs, as it is a mix of pop, folk/country and rock elements.
 
 
-
-### **Scatterplot** containing the **energy and valence** of each album
-
-#### **The Fame**
-```{r}
-The_Fame <- ggplot(The_Fame, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(The_Fame)
-
-```
-
-****
-This plot is relatively cohesive and does not show a lot of extreme outliers. The most notable one is *Brown Eyes*, which has an energy level of 0.508 and is significantly smaller than the other songs. On the other side, *Disco Heaven* has the highest energy level of 0.946.
-
-
-
-#### **Born This Way**
-```{r}
-Born_This_Way <- ggplot(Born_This_Way, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(Born_This_Way)
-
-```
-
-****
-This plot is already very different than the previous one as the line is pretty bent and curvy. The biggest outlier in energy is *Bloody Mary*. Its energy level is 0.637. The highest energy level is 0.970 from the song *ScheiBe*.
-
-
-
-#### **Artpop**
-```{r}
-Artpop <- ggplot(Artpop, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(Artpop)
-
-```
-
-****
-This plot shows a bit of a curve. The biggest outlier is clearly *Dope*. Its energy level is 0.429. This is the lowest one until now, which makes sense as this song is a ballad and has is much slower and lower in valence and danceability than the other songs on this rather experimental album. On the other end, *Mary Jane Holland* has 0.967, which is the highest energy level of all songs on this album.
-
-
-
-#### **Cheek To Cheek**
-```{r}
-Cheek_To_Cheek <- ggplot(Cheek_To_Cheek, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(Cheek_To_Cheek)
-
-```
-
-****
-The *Cheek To Cheek* plot shows a pretty straight line starting from a lower danceability level to a higher one. This jazz album is very different from the rest as the genre is already a big notifier of how the valence and danceability level could possibly impact its energy levels. The lowest energy score is 0.129 for *Ev'ry Time We Say Goodbye*, which is much lower than what was previously noted. This song is very slow and low in energy. Contrary to that song is *It Don't Mean A Thing (If It Ain't Got That Swing)*. Its energy level is 0.778, which is the highest here.
-
-
-
-#### **Joanne**
-```{r}
-Joanne <- ggplot(Joanne, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(Joanne)
-
-```
-
-****
-This plot for the *Joanne* album shows a relatively straight line with a curve in the beginning. The biggest outlier in energy is the *Angel Down - Work Tape*. Its energy level is 0.237. This song is a different version of the song *Angel Down* which is on the same album. The energy is much lower as it is slower than most songs on the album. The highest energy level in this plot is 0.889 for the song *A-YO*.
-
-
-
-#### **A Star Is Born (Soundtrack)**
-```{r}
-A_Star_Is_Born_Soundtrack <- ggplot(A_Star_Is_Born_Soundtrack, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(A_Star_Is_Born_Soundtrack)
-
-```
-
-****
-The line of this plot for the *A Star Is Born (Soundtrack)* album is pretty bent. The biggest energy outlier is *Is That Alright?*, which has an energy level of 0.279. This is also a slower song. The highest song, on the contrary, is *Black Eyes* (by Bradley Cooper, in this case) which energy level is 0.937.
-
-
-
-#### **Chromatica**
-```{r}
-Chromatica <- ggplot(Chromatica, aes(x = valence, y = energy, size = danceability, label=track.name)) + geom_point() + geom_smooth()
-
-ggplotly(Chromatica)
-
-```
-
-****
-The last plot for *Chromatica* shows a curvy line. The biggest outlier is clearly *Chromatica II*, which has an energy level of 0.184. This is an instrumentaland orchestral track of 42 seconds and transitions seamlessly into *911*, which has an energy level of 0.789. This is the song that has the highest energy level of the album. It is quite interesting how two tracks, that are usually seen as one, can be so different in their energy levels.
 
 
 ### Studying and comparing all songs with the **lowest energy level** with a **chordogram**
