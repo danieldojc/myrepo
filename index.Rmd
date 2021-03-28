@@ -22,6 +22,7 @@ library(ggdendro)
 library(protoclust)
 library(heatmaply)
 library(cluster)
+library(kknn)
 
 
 The_Fame <- get_playlist_audio_features("", "0tP9ws8v5IahnYpFWWZWjG")
@@ -33,6 +34,7 @@ A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("", "4jbR1SeCh5XpitDHxL
 Chromatica <- get_playlist_audio_features("", "0A3GuU5dqjCO4viWOZbfBZ")
 
 Lady_Gaga_Discography <- dplyr::bind_rows(
+        The_Fame %>% mutate(category = "The Fame"),
         Born_This_Way %>% mutate(category =  "Born This Way"),
         Artpop %>% mutate(category = "Artpop"),
         Cheek_To_Cheek %>% mutate(category = "Cheek To Cheek"),
@@ -42,445 +44,173 @@ Lady_Gaga_Discography <- dplyr::bind_rows(
     )
 ```
 
-### Zooming in on **all songs** on each album with **dendograms**
 
-#### The Fame
-``` {r}
-The_Fame <-
-  get_playlist_audio_features("bnfcollection", "0tP9ws8v5IahnYpFWWZWjG") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
+### Lady Gaga: from her **controversial** *The Fame* to her **newest release** *Chromatica*
+Lady Gaga's first album, *The Fame*, was released in August 2008 and shot her into a life of pop stardom. From that moment, Gaga was one of the biggest artists in the world. Through the years, she has settled into this roll well and proven her musical diversity and range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much interested in how the different musical elements are related to the commercial success of the albums.
 
-The_Fame <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = The_Fame
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(The_Fame %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
+This aim of this website is to display my small research on Lady Gaga's full discography. The albums I will compare are *The Fame*, *Born This Way*, *Artpop*, *Cheek To Cheek* (with Tony Bennett), *Joanne*, *A Star Is Born Soundtrack* (with Bradley Cooper) and *Chromatica*. To study the musical differences, I will first rank the albums by commercial success by looking at the total Spotify streams each album has. Then I will look at the musical differences of each album and conclude whether there is a relationship between the commercial succes and musical elements.
 
-The_Fame_dist <- dist(The_Fame, method = "euclidean")
+I expect that, due to Gaga's variety of musical styles, there will be quite some differences in the data of this portfolio. The energy and danceability will probably be quite high, with some outliers as she has also released a few slower songs. The valence will probably vary, as Gaga has both happier and sadder songs. Part of her genius is that she is able to combine these elements seamlessly into her music.
 
-The_Fame_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
+
+
+### **Ranking** all of Gaga's albums by the **amount of Spotify streams**
+Before studying the musical elements of Lady Gaga's music, I have to rank all albums based on their commercial success. I first calculated the total amount of streams of each album on Spotify on February 28, 2021. As each album has a different amount of songs, I took the mean of streams per song on each album to have a fair ranking. My ranking will therefore be based on the average streams per song on each album.
+
+
+1. **A Star Is Born Soundtrack (2018)**
+- 3.253.821.459 streams (19 songs)
+- Average of *171.253.761* streams per song
+
+2. **The Fame (2008)**
+- 1.455.977.263 streams (15 songs)
+- Average of *97.065.151* streams per song
+
+3. **Chromatica (2020)**:
+- 1.415.855.164 streams (16 songs)
+- Average of *88.474.260* streams per song
+
+4. **Joanne (2016)**
+- 1.182.601.651 (14 songs)
+- Average of *84.471.547* streams per song
+
+5. **Born This Way (2011)**
+- 938.928.266 streams (17 songs)
+- Average of *55.231.074* streams per song
+
+6. **Artpop (2013)**
+- 627.806.934 streams (14 songs)
+- Average of *44.843.352* streams per song
+
+7. **Cheek To Cheek (2014)**
+- 116.065.257 streams (17 songs)
+- Average of *6.827.368* streams per song
+
+The only issue with this method of calculation is that all albums were released at different points in time, so some albums have naturally had more time to be streamed. I have not found a reliable source that provided me with data that can be fully equally compared. Another thing to take into consideration, is that *A Star Is Born* is the soundtrack of a movie, so it had much more exposure to a wider audience. However, it is still useful to look at this album as no two albums had the exact same marketing strategy.
+
+
+### Comparing all albums by their **energy and loudness levels** and with a **histogram**.
+
+#### Comparison by **energy**
+```{r message=FALSE, warning=FALSE}
+Lady_Gaga_Discography %>%
+  ggplot(aes(x = energy)) +
+  geom_histogram(binwidth = 0.1) +
+  facet_wrap(.~category)
+
 ```
 
 ****
-The Fame, using the "complete" method.
+To start off, I want to get an overview of all the albums compared to each other in their energy and loudness.
+This first histogram shows that there is a quite a big difference in energy between all the albums. *Cheek To Cheek* scores quite a bit lower than *Chromatica* for example, which is logical because the it is a jazz record consisting of more slower, chiller songs. *Chromatica*, on the contrary, has only upbeat songs and scores very high on the energy ranking. This rule seems to apply for all her pop albums. *Artpop*, *The Fame*, and *Born This Way* score much higher than *Cheek To Cheek* (jazz) and *A Star Is Born*. *Joanne* is seems to be a combination, because it has both lower and higher energy scores. The album consists of both upbeat and slower songs, as it is a mix of pop, folk/country and rock elements.
 
-
-#### Born This Way
+#### Comparison by **loudness**
 ``` {r}
-Born_This_Way <-
-  get_playlist_audio_features("bnfcollection", "7z51IAcHQtFa6DIsIQOGZE") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
 
-Born_This_Way <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = Born_This_Way
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(Born_This_Way %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
-
-Born_This_Way_dist <- dist(Born_This_Way, method = "euclidean")
-
-Born_This_Way_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
-```
-
-
-****
-Born This Way, using the "complete" method.
-
-
-#### Artpop
-``` {r}
-Artpop <-
-  get_playlist_audio_features("bnfcollection", "0Cu6DccnrVil7ZDnE1bhwP") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
-
-Artpop <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = Artpop
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(Artpop %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
-
-Artpop_dist <- dist(Artpop, method = "euclidean")
-
-Artpop_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
-```
-
-
-****
-Artpop, using the "complete" method.
-
-
-#### Cheek To Cheek
-``` {r}
-Cheek_To_Cheek <-
-  get_playlist_audio_features("bnfcollection", "7JEg2pZCBZktul0xqjDLiQ") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
-
-Cheek_To_Cheek <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = Cheek_To_Cheek
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(Cheek_To_Cheek %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
-
-Cheek_To_Cheek_dist <- dist(Cheek_To_Cheek, method = "euclidean")
-
-Cheek_To_Cheek_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
-```
-
-
-****
-Cheek To Cheek, using the "complete" method.
-
-
-#### Joanne
-``` {r}
-Joanne <-
-  get_playlist_audio_features("bnfcollection", "0F9TvACmRg9jnWdTpHlPkM") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
-
-Joanne <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = Joanne
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(Joanne %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
-
-Joanne_dist <- dist(Joanne, method = "euclidean")
-
-Joanne_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
-```
-
-
-****
-Joanne, using the "complete" method.
-
-
-#### A Star Is Born
-``` {r}
-A_Star_Is_Born_Soundtrack <-
-  get_playlist_audio_features("bnfcollection", "4jbR1SeCh5XpitDHxLTlB3") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
-
-A_Star_Is_Born_Soundtrack <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = A_Star_Is_Born_Soundtrack
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(A_Star_Is_Born_Soundtrack %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
-
-A_Star_Is_Born_Soundtrack_dist <- dist(A_Star_Is_Born_Soundtrack, method = "euclidean")
-
-A_Star_Is_Born_Soundtrack_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
+Lady_Gaga_Discography %>%
+  ggplot(aes(x = loudness)) +
+  geom_histogram() +
+  facet_wrap(.~category)
 ```
 
 ****
-A Star Is Born, using the "complete" method.
+This second histogram displays the loudness of each album. *A Star Is Born* and *Born This Way* are quite similar to each other. The albums are relatively loud and seem to do this consistently. *A Star Is Born* does have a high outlier, which could be explained by the harder rock songs on the album.
+Another notable element is that *Cheek To Cheek* and *Chromatica* are divided over the whole graph, meaning that they have songs that are less loud (softer) and songs that are a little louder. However, *Chromatica* has more loud songs than Cheek To Cheek.
+*Joanne* is much more centered in the middle.
+*The Fame* and *Artpop* both have a higher level of loudness. The albums are quite consistent regarding this element.
 
 
-#### Chromatica
-``` {r}
-Chromatica <-
-  get_playlist_audio_features("bnfcollection", "0A3GuU5dqjCO4viWOZbfBZ") %>%
-  add_audio_analysis() %>%
-  mutate(
-    segments = map2(segments, key, compmus_c_transpose),
-    pitches =
-      map(segments,
-        compmus_summarise, pitches,
-        method = "mean", norm = "manhattan"
-      ),
-    timbre =
-      map(
-        segments,
-        compmus_summarise, timbre,
-        method = "mean"
-      )
-  ) %>%
-  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
-  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
-  unnest(cols = c(pitches, timbre))
+### **Scatterplot** containing the **energy and valence** of each album
 
-Chromatica <-
-  recipe(
-    track.name ~
-      danceability +
-      energy +
-      loudness +
-      speechiness +
-      acousticness +
-      instrumentalness +
-      liveness +
-      valence +
-      tempo +
-      duration +
-      C + `C#|Db` + D + `D#|Eb` +
-      E + `F` + `F#|Gb` + G +
-      `G#|Ab` + A + `A#|Bb` + B +
-      c01 + c02 + c03 + c04 + c05 + c06 +
-      c07 + c08 + c09 + c10 + c11 + c12,
-    data = Chromatica
-  ) %>%
-  step_center(all_predictors()) %>%
-  step_scale(all_predictors()) %>% 
-  # step_range(all_predictors()) %>% 
-  prep(Chromatica %>% mutate(track.name = str_trunc(track.name, 20))) %>%
-  juice() %>%
-  column_to_rownames("track.name")
+#### **The Fame**
+```{r}
+The_Fame <- ggplot(The_Fame, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
 
-Chromatica_dist <- dist(Chromatica, method = "euclidean")
+ggplotly(The_Fame)
 
-Chromatica_dist %>% 
-  hclust(method = "complete") %>% # Try single, average, and complete.
-  dendro_data() %>%
-  ggdendrogram()
 ```
 
+****
+This plot is relatively cohesive and does not show a lot of extreme outliers. The most notable one is *Brown Eyes*, which has an energy level of 0.508 and is significantly smaller than the other songs. On the other side, *Disco Heaven* has the highest energy level of 0.946.
+
+
+
+#### **Born This Way**
+```{r}
+Born_This_Way <- ggplot(Born_This_Way, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(Born_This_Way)
+
+```
 
 ****
-Chromatica, using the "complete" method.
+This plot is already very different than the previous one as the line is pretty bent and curvy. The biggest outlier in energy is *Bloody Mary*. Its energy level is 0.637. The highest energy level is 0.970 from the song *ScheiBe*.
+
+
+
+#### **Artpop**
+```{r}
+Artpop <- ggplot(Artpop, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(Artpop)
+
+```
+
+****
+This plot shows a bit of a curve. The biggest outlier is clearly *Dope*. Its energy level is 0.429. This is the lowest one until now, which makes sense as this song is a ballad and has is much slower and lower in valence and danceability than the other songs on this rather experimental album. On the other end, *Mary Jane Holland* has 0.967, which is the highest energy level of all songs on this album.
+
+
+
+#### **Cheek To Cheek**
+```{r}
+Cheek_To_Cheek <- ggplot(Cheek_To_Cheek, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(Cheek_To_Cheek)
+
+```
+
+****
+The *Cheek To Cheek* plot shows a pretty straight line starting from a lower danceability level to a higher one. This jazz album is very different from the rest as the genre is already a big notifier of how the valence and danceability level could possibly impact its energy levels. The lowest energy score is 0.129 for *Ev'ry Time We Say Goodbye*, which is much lower than what was previously noted. This song is very slow and low in energy. Contrary to that song is *It Don't Mean A Thing (If It Ain't Got That Swing)*. Its energy level is 0.778, which is the highest here.
+
+
+
+#### **Joanne**
+```{r}
+Joanne <- ggplot(Joanne, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(Joanne)
+
+```
+
+****
+This plot for the *Joanne* album shows a relatively straight line with a curve in the beginning. The biggest outlier in energy is the *Angel Down - Work Tape*. Its energy level is 0.237. This song is a different version of the song *Angel Down* which is on the same album. The energy is much lower as it is slower than most songs on the album. The highest energy level in this plot is 0.889 for the song *A-YO*.
+
+
+
+#### **A Star Is Born (Soundtrack)**
+```{r}
+A_Star_Is_Born_Soundtrack <- ggplot(A_Star_Is_Born_Soundtrack, aes(x = valence, y = danceability, size = energy, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(A_Star_Is_Born_Soundtrack)
+
+```
+
+****
+The line of this plot for the *A Star Is Born (Soundtrack)* album is pretty bent. The biggest energy outlier is *Is That Alright?*, which has an energy level of 0.279. This is also a slower song. The highest song, on the contrary, is *Black Eyes* (by Bradley Cooper, in this case) which energy level is 0.937.
+
+
+
+#### **Chromatica**
+```{r}
+Chromatica <- ggplot(Chromatica, aes(x = valence, y = energy, size = danceability, label=track.name)) + geom_point() + geom_smooth()
+
+ggplotly(Chromatica)
+
+```
+
+****
+The last plot for *Chromatica* shows a curvy line. The biggest outlier is clearly *Chromatica II*, which has an energy level of 0.184. This is an instrumentaland orchestral track of 42 seconds and transitions seamlessly into *911*, which has an energy level of 0.789. This is the song that has the highest energy level of the album. It is quite interesting how two tracks, that are usually seen as one, can be so different in their energy levels.
+
 
 
 ### Studying and comparing all songs with the **highest energy level** with a **tempogram**
@@ -602,24 +332,7 @@ nine_one_one %>%
 ****
 This *911* tempogram has two clear lines around 220 BPM and 440 BPM. This is logical as the latter is the double of the first one.
 
-Altogether, it is clear that most of the highly energetic songs have clear lines, with one or two exceptions. Most of them have their tempo between 200 and 300 BPM, which is a up-beat tempo for a track. So, it makes sense that these were the songs with the highest energy on each album.
-
-
-
-### Comparing all albums separately by their **energy levels**.
-
-```{r message=FALSE, warning=FALSE}
-Lady_Gaga_Discography %>%
-  ggplot(aes(x = energy)) +
-  geom_histogram(binwidth = 0.1) +
-  facet_wrap(.~category)
-
-ggplotly()
-```
-
-***
-This histogram shows that there is a quite a big difference in energy between all the albums. Cheek To Cheek scores quite a bit lower than Chromatica for example, which is logical because the it is a jazz record consisting of more slower, chiller songs. Chromatica, on the contrary, has only upbeat songs and scores very high on the energy ranking. This rule seems to apply for all her pop albums. Artpop, The Fame, and Born This Way score much higher than Cheek To Cheek (jazz) and A Star Is Born. Joanne is kind of a mix, because it has both low and higher energy scores. The album consists of both upbeat and slower songs, as it is a mix of pop, folk/country and rock elements.
-
+Altogether, it is clear that most of the highly energetic songs have clear lines, with one or two exceptions. Most of them have their tempo between 200 and 300 BPM, which is a up-beat tempo for a track. So, it makes sense that these were the songs with the highest energy on each album. My expectation of the songs that are higher in energy would also have a higher BPM is true.
 
 
 
@@ -1463,48 +1176,269 @@ Chromatica_II %>%
 *Chromatica II* has three clear parts. The first part is the intro, the second part shows no strong presence of chords and the third part shows a strong presence of Fmin, Ebmaj, Dmin and C#min. This track is instrumental and orchestral so it is different from all of the other songs.
 
 
+### Comparing the first and last tempograms with **cepstrograms** using **timbre**.
 
-### Lady Gaga: from her **controversial** *The Fame to her **newest release** Chromatica
-Lady Gaga's first album, The Fame, was released in August 2008 and immediately shot her to stardom. From that moment Gaga was on of the biggest artists in the world. Lady Gaga is one of the biggest pop artists in the world and is known for her musical range. After her debut album, she has released a variety of musical projects, ranging from mainstream pop to folk and jazz. I am very much
+#### **Disco Heaven** (from *The Fame*)
+``` {r}
+Disco_Heaven <-
+  get_tidy_audio_analysis("1uvJevFvRwq3AO1qzmXxhJ") %>%
+  compmus_align(sections, segments) %>%                     
+  select(sections) %>%                                      
+  unnest(sections) %>%                                     
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"             
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"             
+      )
+  )
 
-This aim of this website is to display my research on Lady Gaga's full discography. The albums I will compare are The Fame, Born This Way, Artpop, Cheek To Cheek (with Tony Bennett), Joanne, A Star Is Born Soundtrack and Chromatica. To study the musical differences, I will first rank the albums by commercial success by looking at the Spotify streams each album has. I will then look at the musical differences of each album and conclude if there is a relationship between the the commercial success and musical elements, such as energy and valence.
+Disco_Heaven %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  scale_fill_viridis_c() +                              
+  theme_classic()
+```
+
+****
+I will now compare the first and last song with the highest energy to find any similarities and differences. This cepstrogram shows Lady Gaga's song *Disco Heaven* from the album *The Fame*. I plotted it in sections, as I find this the clearest overview of the cepstrogram. It is divided very equally. c02 is clearly the strongest one here.
 
 
-### **Ranking** all of Gaga's albums by the **amount of Spotify streams**
-Before studying the musical elements of Lady Gaga's music to compare it to the commercial success, I have to rank all albums based on their success. I first calculated the total amount of streams of each album on Spotify on February 28, 2021. Then I divided this by the number of songs on the album to compare all songs equally. My ranking will therefore be based on the average streams per song on each album.
+#### **911** (from *Chromatica*)
+``` {r}
+nine_one_one <-
+  get_tidy_audio_analysis("6qI0MU175Dk2DeoUjlrOpy") %>%
+  compmus_align(sections, segments) %>%                     
+  select(sections) %>%                                      
+  unnest(sections) %>%                                     
+  mutate(
+    pitches =
+      map(segments,
+        compmus_summarise, pitches,
+        method = "rms", norm = "euclidean"             
+      )
+  ) %>%
+  mutate(
+    timbre =
+      map(segments,
+        compmus_summarise, timbre,
+        method = "rms", norm = "euclidean"             
+      )
+  )
+
+nine_one_one %>%
+  compmus_gather_timbre() %>%
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = basis,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  scale_fill_viridis_c() +                              
+  theme_classic()
+```
+
+****
+This cepstrogram shows Lady Gaga's song *911* from the album *Chromatica*. This one is different from the previous, because there is a lot more variety here. c02 and c01 are the most prominent, but there are definitely some more that are present. It started to get dark from c07 to all the way up.
 
 
-1. **A Star Is Born Soundtrack (2018)**
-- 3.253.821.459 streams (19 songs)
-- Average of *171.253.761* streams per song
 
-2. **The Fame (2008)**
-- 1.455.977.263 streams (15 songs)
-- Average of *97.065.151* streams per song
+### Difference between Gaga's most and least streamed song with a **Chromagram**?
 
-3. **Chromatica (2020)**:
-- 1.415.855.164 streams (16 songs)
-- Average of *88.474.260* streams per song
+#### **Shallow** (1.445.044.322 streams on 28-02-2020)
 
-4. **Joanne (2016)**
-- 1.182.601.651 (14 songs)
-- Average of *84.471.547* streams per song
+``` {r}
 
-5. **Born This Way (2011)**
-- 938.928.266 streams (17 songs)
-- Average of *55.231.074* streams per song
+Shallow <-
+  get_tidy_audio_analysis("2VxeLyX666F8uXCJ0dZF8B") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
 
-6. **Artpop (2013)**
-- 627.806.934 streams (14 songs)
-- Average of *44.843.352* streams per song
+Shallow %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
 
-7. **Cheek To Cheek (2014)**
-- 116.065.257 streams (17 songs)
-- Average of *6.827.368* streams per song
+```
 
-The only issue with this method of calculation is that all albums were released at different points in time, so some albums have naturally had more time to be streamed. I have not found a reliable source that provided me with data that can be fully equally compared.
+****
+There are a few notable trends in this chromagram. The most consistent note is the G. Note that the other present notes are the ones that do not have an accidental (# or b). Only F#/Gb has a few moments in which appears, which is later in the song. This makes sense, because the song is in G-major, so the only note that has an accidental is F#.
 
+
+#### **On A Clear Day (You Can See Forever)** (56.827 streams on 28-02-2020)
+
+``` {r}
+
+On_A_Clear_Day <-
+  get_tidy_audio_analysis("3BjrO5IkvIho2URXIRAyqA") %>%
+  select(segments) %>%
+  unnest(segments) %>%
+  select(start, duration, pitches)
+
+On_A_Clear_Day %>%
+  mutate(pitches = map(pitches, compmus_normalise, "euclidean")) %>%
+  compmus_gather_chroma() %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2,
+      width = duration,
+      y = pitch_class,
+      fill = value
+    )
+  ) +
+  geom_tile() +
+  labs(x = "Time (s)", y = NULL, fill = "Magnitude") +
+  theme_minimal() +
+  scale_fill_viridis_c()
+
+```
+
+****
+This chromagram has much more changes. This is logical as this song is a jazz song, compared to the previous song that was pop. Jazz usually has more musical changes and shows more diversity when it comes to its musical elements. The prominent notes all appear very shortly, except for the D#/Eb that stays longer at a later point in the song.
+
+
+
+### Can Spotify differentiate between Gaga's **least streamed, most streamed and the album in between** with a **confusion matrix**?
+``` {r}
+Cheek_To_Cheek <- get_playlist_audio_features("spotify", "7JEg2pZCBZktul0xqjDLiQ")
+A_Star_Is_Born_Soundtrack <- get_playlist_audio_features("spotify", "4jbR1SeCh5XpitDHxLTlB3")
+Joanne <- get_playlist_audio_features("spotify", "0F9TvACmRg9jnWdTpHlPkM")
+Gaga <-
+  bind_rows(
+    Cheek_To_Cheek %>% mutate(playlist = "Cheek to Cheek") %>% slice_head(n = 20),
+    A_Star_Is_Born_Soundtrack %>% mutate(playlist = "A Star Is Born") %>% slice_head(n = 20),
+    Joanne %>% mutate(playlist = "Joanne") %>% slice_head(n = 20)
+  ) 
+
+
+Gaga_features <-
+  Gaga %>%  
+  add_audio_analysis() %>% 
+  mutate(
+    playlist = factor(playlist),
+    segments = map2(segments, key, compmus_c_transpose),
+    pitches =
+      map(
+        segments,
+        compmus_summarise, pitches,
+        method = "mean", norm = "manhattan"
+      ),
+    timbre =
+      map(
+        segments,
+        compmus_summarise, timbre,
+        method = "mean",
+      )
+  ) %>%
+  mutate(pitches = map(pitches, compmus_normalise, "clr")) %>%
+  mutate_at(vars(pitches, timbre), map, bind_rows) %>%
+  unnest(cols = c(pitches, timbre))
+
+
+Gaga_recipe <-
+  recipe(
+    playlist ~
+      danceability +
+      energy +
+      loudness +
+      speechiness +
+      acousticness +
+      instrumentalness +
+      liveness +
+      valence +
+      tempo +
+      duration +
+      C + `C#|Db` + D + `D#|Eb` +
+      E + `F` + `F#|Gb` + G +
+      `G#|Ab` + A + `A#|Bb` + B +
+      c01 + c02 + c03 + c04 + c05 + c06 +
+      c07 + c08 + c09 + c10 + c11 + c12,
+    data = Gaga_features,          # Use the same name as the previous block.
+  ) %>%
+  step_center(all_predictors()) %>%
+  step_scale(all_predictors())
+
+
+Gaga_cv <- Gaga_features %>% vfold_cv(5)
+
+
+knn_model <-
+  nearest_neighbor(neighbors = 1) %>%
+  set_mode("classification") %>% 
+  set_engine("kknn")
+Gaga_knn <- 
+  workflow() %>% 
+  add_recipe(Gaga_recipe) %>% 
+  add_model(knn_model) %>% 
+  fit_resamples(
+    Gaga_cv, 
+    control = control_resamples(save_pred = TRUE)
+  )
+
+get_conf_mat <- function(fit) {
+  outcome <- .get_tune_outcome_names(fit)
+  fit %>% 
+    collect_predictions() %>% 
+    conf_mat(truth = outcome, estimate = .pred_class)
+}  
+
+get_pr <- function(fit) {
+  fit %>% 
+    conf_mat_resampled() %>% 
+    group_by(Prediction) %>% mutate(precision = Freq / sum(Freq)) %>% 
+    group_by(Truth) %>% mutate(recall = Freq / sum(Freq)) %>% 
+    ungroup() %>% filter(Prediction == Truth) %>% 
+    select(class = Prediction, precision, recall)
+}  
+  
+Gaga_knn %>% get_conf_mat()
+
+Gaga_knn %>% get_conf_mat() %>% autoplot(type = "heatmap")
+
+```
+
+***
+There are a few interesting thins in this confusion matrix. Spotify's API seems to be very sure about recognizing *Cheek To Cheek*. This is not a surprise, because this album is very different than the other, as I have explained before. The musical elements from this album are simply outliers when compared to the other albums.
+*Joanne* and *A Star Is Born* were written not too far apart from each other, so it is not strange that this matrix finds some similarities when looking at *Joanne* compared to *A Star Is Born*.
 
 
 ### Is there a clear and distinctive **relationship** between **music and commerce** in Gaga's music?
-I have not been able to draw a conclusion as there are more musical elements I want to compare.
+The first histogram that plots all the albums by energy level does not show a clear difference between the commercially successful albums versus the less successful ones. The same seems to be true for loudness. I expected that the more energetic and louder albums would be more successful, but this is not necessarily true. The most popular albums might be higher in energy and loudness, but this also seems to be the case for the less popular ones.
+
+The songs that are higher in energy also have a higher BPM. This is my conclusion from the tempograms. On the other hand, the songs that are lower in energy seem to have a more stable trend. Most of these songs, that I plotted in a chordogram, seem to use more minor chords. This could mean that the songs that are lower in energy, are also the songs that Gaga writes in a minor key. But there does not seem to be a clear difference between the commercially successful albums and certain musical elements here.
+
+The confusion matrix shows some interesting data. *Cheek To Cheek* is very different than the other albums. This also translates in the commercial success, as this album got significantly less streams than Gaga’s other albums. Could this mean that when she released a pop project, it is simply streamed more because her fans are used to it? I do think so. But besides that, pop music also has a much bigger platform on Spotify than jazz music. There are more people listening to pop on Spotify than they do to jazz.
+
+Altogether, I can conclude that while there may not be a strong difference between Gaga’s projects, there are a few things to be said. The higher the energy and danceability, the more success a song/album will probably have. *Cheek To Cheek* has proven that pop is much more popular for Gaga. But as she released more projects in the future, it will be interesting to see where that data takes us.
